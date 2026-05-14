@@ -1,0 +1,23 @@
+name: 'Custom Repo Cloner'
+description: 'Clones a list of repositories using a specific syntax'
+inputs:
+  repo-list:
+    description: 'The list of repos to clone'
+    required: true
+  git-pat:
+    description: 'Git Personal Access Token for authentication'
+    default: ''
+    required: false
+runs:
+  using: "composite"
+  steps:
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+    - name: Run cloning script
+      shell: bash
+      env:
+        GIT_PAT: ${{ inputs.git-pat }}
+        REPO_LIST: ${{ inputs.repo-list }}
+      run: |
+        SCRIPT_PATH="${{ github.action_path }}/../../../scripts/git-clone-ref.py"
+        uv run $SCRIPT_PATH "$REPO_LIST"
