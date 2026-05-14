@@ -20,4 +20,4 @@ runs:
         REPO_LIST: ${{ inputs.repo-list }}
       run: |
         SCRIPT_PATH="${{ github.action_path }}/../../../scripts/git-clone-ref.py"
-        uv run $SCRIPT_PATH "$REPO_LIST"
+        uv run "$SCRIPT_PATH" "$REPO_LIST"
