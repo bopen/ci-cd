@@ -1,0 +1,36 @@
+name: 'Setup deployment environment'
+description: 'Sets up the deployment environment by cloning necessary repositories'
+inputs:
+  repo:
+    description: 'The deployment repository to clone'
+    required: true
+  deps-list:
+    description: 'The list of dependencies to clone'
+    default: ''
+    required: false
+  deps-version-file:
+    description: 'File containing versions of dependencies'
+    default: ''
+    required: false
+  git-pat:
+    description: 'Git Personal Access Token for authentication'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Clone ${{ inputs.repo }} repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ inputs.git-pat }}
+        path: ${{ inputs.repo }}
+    - name: Load environment variables from ${{ inputs.deps-version-file }} file
+      shell: bash
+      run: |
+        # grep -v '^#' ignores comment lines
+        # grep -v '^$' ignores empty lines
+        grep -v '^#' ${{ inputs.deps-version-file }} | grep -v '^$' >> $GITHUB_ENV
+    - name: Clone edh-catalogue-api and edh-catalogue-manager repositories
+      uses: bopen/ci-cd/git-clone@main
+      with:
+        repo-list: ${{ inputs.deps-list }}
+        git-pat: ${{ inputs.git-pat }}
