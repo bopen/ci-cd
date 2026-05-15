@@ -53,3 +53,16 @@ This action can be used in workflows to prepare a deployment environment by clon
       deps-version-file: org/main-repo/environment.release
       git-pat: ${{ secrets.GIT_PAT }}
 ~~~
+
+## update-dependency-file Action
+
+A GitHub Action that updates a dependency file with the specified version of specified dependency.
+
+### Usage
+
+This action can be used in workflows to update a dependency file with the new version of a specified dependency.
+
+**Inputs:**
+- **`package-ref`** (required): The reference to the package in the dependency file
+- **`version`** (required): The version to update the dependency to
+- **`environment-file`** (required): The file containing the dependency information

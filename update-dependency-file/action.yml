@@ -1,0 +1,23 @@
+name: 'Update dependency file'
+description: 'Updates the dependency file'
+inputs:
+  version:
+    description: 'The version to update the dependency to'
+    required: true
+  package-ref:
+    description: 'The reference to the package in the dependency file'
+    required: true
+  environment-file:
+    description: 'The file containing the dependency information'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Update dependency file
+      shell: bash
+      env:
+        VERSION: ${{ inputs.version }}
+        PACKAGE_REF: ${{ inputs.package-ref }}
+        ENVIRONMENT_FILE: ${{ inputs.environment-file }}
+      run: |
+        sed -i -r "s|^$PACKAGE_REF=.*$|$PACKAGE_REF=\"$VERSION\"|" $ENVIRONMENT_FILE
