@@ -73,7 +73,7 @@ This action can be used in workflows to update a dependency file with the new ve
   - name: Update dependency file
     uses: bopen/ci-cd/update-dependency-file@main
     with:
-      package-ref: PACKAGE_REF
+      package-ref: PACKAGE_NAME_REF
       version: v1.0
       deps-versions-file: environment.release
 ~~~
