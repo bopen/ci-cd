@@ -19,16 +19,19 @@ runs:
   using: "composite"
   steps:
     - name: Clone ${{ inputs.repo }} repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       with:
         token: ${{ inputs.git-pat }}
         path: ${{ inputs.repo }}
+        persist-credentials: false
     - name: Load environment variables from ${{ inputs.deps-version-file }} file
       shell: bash
       run: |
         # grep -v '^#' ignores comment lines
         # grep -v '^$' ignores empty lines
-        grep -v '^#' ${{ inputs.deps-version-file }} | grep -v '^$' >> $GITHUB_ENV
+        grep -v '^#' ${INPUTS_DEPS_VERSION_FILE} | grep -v '^$' >> $GITHUB_ENV
+      env:
+        INPUTS_DEPS_VERSION_FILE: ${{ inputs.deps-version-file }}
     - name: Clone edh-catalogue-api and edh-catalogue-manager repositories
       uses: bopen/ci-cd/git-clone@main
       with:
