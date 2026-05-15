@@ -1,0 +1,27 @@
+name: 'Check and update uv.lock file'
+description: 'Checks if uv.lock file is correct and updates it if necessary'
+inputs:
+  repo-path:
+    description: 'The path to the repository containing the uv.lock file'
+    required: true
+outputs:
+  uv-lock:
+    description: 'Indicates whether the uv.lock file has been updated'
+    value: ${{ steps.check_uv_lock.outputs.UV_LOCK }}
+runs:
+  using: "composite"
+  steps:
+    - name: Check if uv lock is up to date
+      shell: bash
+      id: check_uv_lock
+      run: |
+        cd bopen/edh-catalogue-deploy
+        uv lock --check && UV_LOCK='false' || UV_LOCK='true'
+        echo "UV_LOCK=$UV_LOCK" >> $GITHUB_OUTPUT
+        cat $GITHUB_OUTPUT
+    - name: Update uv lock
+      shell: bash
+      if: steps.check_uv_lock.outputs.UV_LOCK == 'true'
+      run: |
+        cd bopen/edh-catalogue-deploy
+        uv lock
