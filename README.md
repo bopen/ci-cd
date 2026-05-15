@@ -66,3 +66,36 @@ This action can be used in workflows to update a dependency file with the new ve
 - **`package-ref`** (required): The reference to the package in the dependency file
 - **`version`** (required): The version to update the dependency to
 - **`deps-versions-file`** (required): The file containing the dependency information
+
+**Example workflow:**
+
+~~~yaml
+  - name: Update dependency file
+    uses: bopen/ci-cd/update-dependency-file@main
+    with:
+      package-ref: PACKAGE_REF
+      version: v1.0
+      deps-versions-file: environment.release
+~~~
+
+## check-update-uv-lock Action
+
+A GitHub Action that checks if the `uv.lock` file is up to date and updates it if necessary.
+
+### Usage
+
+This action can be used in workflows to ensure that the `uv.lock` file is correct and updated if needed.
+
+**Inputs:**
+- **`repo-path`** (required): The path to the repository containing the `uv.lock` file
+**Outputs:**
+- **`uv-lock`**: Boolean indicating whether the `uv.lock` file has been updated
+
+**Example workflow:**
+~~~yaml
+  - name: Check and update uv lock
+    id: check-update-uv-lock
+    uses: bopen/ci-cd/check-update-uv-lock@main
+    with:
+      repo-path: path/to/repository
+~~~
