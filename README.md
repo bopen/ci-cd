@@ -41,7 +41,7 @@ This action can be used in workflows to prepare a deployment environment by clon
 **Inputs:**
 - **`repo`** (required): The main repository in `org/repo` format to clone
 - **`deps-list`** (required): Space-separated list of dependencies in `org/repo` format to clone alongside the main repository
-- **`deps-version-file`** (required): Path to a file containing the versions of the dependencies to clone
+- **`deps-versions-file`** (required): Path to a file containing the versions of the dependencies to clone
 - **`git-pat`** (optional): Git Personal Access Token for authentication
 
 **Example workflow:**
@@ -50,7 +50,7 @@ This action can be used in workflows to prepare a deployment environment by clon
     with:
       repo: org/main-repo
       deps-list: "org/dependency1 org/dependency2"
-      deps-version-file: org/main-repo/environment.release
+      deps-versions-file: org/main-repo/environment.release
       git-pat: ${{ secrets.GIT_PAT }}
 ~~~
 
@@ -65,4 +65,4 @@ This action can be used in workflows to update a dependency file with the new ve
 **Inputs:**
 - **`package-ref`** (required): The reference to the package in the dependency file
 - **`version`** (required): The version to update the dependency to
-- **`environment-file`** (required): The file containing the dependency information
+- **`deps-versions-file`** (required): The file containing the dependency information

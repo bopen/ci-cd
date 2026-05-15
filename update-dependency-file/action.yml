@@ -7,17 +7,17 @@ inputs:
   package-ref:
     description: 'The reference to the package in the dependency file'
     required: true
-  environment-file:
+  deps-versions-file:
     description: 'The file containing the dependency information'
     required: true
 runs:
   using: "composite"
   steps:
-    - name: Update dependency file
-      shell: bash
-      env:
-        VERSION: ${{ inputs.version }}
-        PACKAGE_REF: ${{ inputs.package-ref }}
-        ENVIRONMENT_FILE: ${{ inputs.environment-file }}
-      run: |
-        sed -i -r "s|^$PACKAGE_REF=.*$|$PACKAGE_REF=\"$VERSION\"|" $ENVIRONMENT_FILE
+  - name: Update dependency file
+    shell: bash
+    env:
+      VERSION: ${{ inputs.version }}
+      PACKAGE_REF: ${{ inputs.package-ref }}
+      ENVIRONMENT_FILE: ${{ inputs.deps-versions-file }}
+    run: |
+      sed -i -r "s|^$PACKAGE_REF=.*$|$PACKAGE_REF=\"$VERSION\"|" $ENVIRONMENT_FILE

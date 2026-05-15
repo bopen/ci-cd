@@ -8,7 +8,7 @@ inputs:
     description: 'The list of dependencies to clone'
     default: ''
     required: false
-  deps-version-file:
+  deps-versions-file:
     description: 'File containing versions of dependencies'
     default: ''
     required: false
@@ -23,12 +23,12 @@ runs:
       with:
         token: ${{ inputs.git-pat }}
         path: ${{ inputs.repo }}
-    - name: Load environment variables from ${{ inputs.deps-version-file }} file
+    - name: Load environment variables from ${{ inputs.deps-versions-file }} file
       shell: bash
       run: |
         # grep -v '^#' ignores comment lines
         # grep -v '^$' ignores empty lines
-        grep -v '^#' ${{ inputs.deps-version-file }} | grep -v '^$' >> $GITHUB_ENV
+        grep -v '^#' ${{ inputs.deps-versions-file }} | grep -v '^$' >> $GITHUB_ENV
     - name: Clone edh-catalogue-api and edh-catalogue-manager repositories
       uses: bopen/ci-cd/git-clone@main
       with:
