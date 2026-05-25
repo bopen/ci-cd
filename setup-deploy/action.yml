@@ -33,7 +33,7 @@ runs:
       env:
         INPUTS_DEPS_VERSIONS_FILE: ${{ inputs.deps-versions-file }}
     - name: Clone edh-catalogue-api and edh-catalogue-manager repositories
-      uses: ./git-clone
+      uses: bopen/ci-cd/git-clone@main
       with:
         repo-list: ${{ inputs.deps-list }}
         git-pat: ${{ inputs.git-pat }}
