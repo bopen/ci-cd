@@ -14,14 +14,18 @@ runs:
     - name: Check if uv lock is up to date
       shell: bash
       id: check_uv_lock
+      env:
+        REPO_PATH: ${{ inputs.repo-path }}
       run: |
-        cd bopen/edh-catalogue-deploy
+        cd $REPO_PATH
         uv lock --check && UV_LOCK='false' || UV_LOCK='true'
         echo "UV_LOCK=$UV_LOCK" >> $GITHUB_OUTPUT
         cat $GITHUB_OUTPUT
     - name: Update uv lock
       shell: bash
       if: steps.check_uv_lock.outputs.UV_LOCK == 'true'
+      env:
+        REPO_PATH: ${{ inputs.repo-path }}
       run: |
-        cd bopen/edh-catalogue-deploy
+        cd $REPO_PATH
         uv lock
