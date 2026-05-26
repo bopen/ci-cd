@@ -1,0 +1,36 @@
+## B-Open Solutions Ltd.
+## CI/CD workflows
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      branch:
+        description: "Branch to check for existence (e.g., 'upstream/b-open')"
+        required: true
+      chart-repo:
+        description: "GitHub repository in 'owner/repo' format (e.g., 'ecmwf/dss-broker-chart')"
+        required: true
+      image_name:
+        description: "Name of the Docker image to build (e.g., 'broker')"
+        required: true
+      repositories:
+        description: "Optional list of additional repositories to check (newline-separated)"
+        required: false
+    secrets:
+      github-pat:
+        description: "PAT token to access the repo"
+        required: true
+
+jobs:
+  validate-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate branch existence
+        if: ${{ inputs.branch == 'upstream/b-open' }}
+        shell: bash
+        env: 
+          GITHUB_PAT: ${{ inputs.github-pat }}
+        run: |
+          # Debugging Info (Safe)
+          echo "Validating the GitHub PAT"
