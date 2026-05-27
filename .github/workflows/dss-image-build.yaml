@@ -13,7 +13,7 @@ on:
         type: string
         description: "GitHub repository in 'owner/repo' format (e.g., 'ecmwf/dss-broker-chart')"
         required: true
-      image_name:
+      image-name:
         type: string
         description: "Name of the Docker image to build (e.g., 'broker')"
         required: true
