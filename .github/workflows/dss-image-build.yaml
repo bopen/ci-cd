@@ -18,6 +18,7 @@ on:
         description: "Name of the Docker image to build (e.g., 'broker')"
         required: true
       repositories:
+        type: string
         description: "Optional list of additional repositories to check (newline-separated)"
         required: false
     secrets:
