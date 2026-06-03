@@ -19,4 +19,4 @@ runs:
         GIT_PAT: ${{ inputs.git-pat }}
         REPO_LIST: ${{ inputs.repo-list }}
       run: |
-        uv run ${{ github.action_path }}/git-clone-ref.py ${REPO_LIST}
+        uv run ${{ github.action_path }}/../scripts/git-clone-ref.py ${REPO_LIST}
