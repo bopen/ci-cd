@@ -41,8 +41,8 @@ def git_clone_repo(
 def git_clone_repos(
     paths: list[str],
     repo_base_url_template: str,
+    git_pat: str,
 ) -> None:
-    git_pat = os.getenv("GIT_PAT", "")
     for repo_path in paths:
         repo_name = os.path.basename(repo_path)
         repo_org = os.path.basename(os.path.dirname(repo_path))
@@ -68,10 +68,11 @@ def git_clone_repos(
 @app.command()
 def main(
     github_repos: list[str] = typer.Argument(..., help="GitHub repositories to clone"),
+    git_pat: str = typer.Option(default="", envvar="GIT_PAT", help="GitHub Personal Access Token"),
 ):
     logging.basicConfig(level=logging.INFO)
     git_clone_repos(
-        github_repos, "https://{credentials}github.com/{repo_org}/{repo_name}.git"
+        github_repos, "https://{credentials}github.com/{repo_org}/{repo_name}.git", git_pat
     )
 
 
