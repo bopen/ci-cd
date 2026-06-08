@@ -13,6 +13,12 @@ inputs:
 runs:
   using: "composite"
   steps:
+  - name: Touch dependency file
+    shell: bash
+    env:
+      ENVIRONMENT_FILE: ${{ inputs.deps-versions-file }}
+    run: |
+      touch $ENVIRONMENT_FILE
   - name: Update dependency file
     shell: bash
     env:
