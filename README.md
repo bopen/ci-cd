@@ -22,6 +22,7 @@ This action can be used in other repositories' workflows to clone multiple repos
   with:
     repo-list: "org/repo1 org/repo2"
     git-pat: ${{ secrets.GIT_PAT }}
+    default-repo-ref: "main"
 ~~~
 
 ### Features

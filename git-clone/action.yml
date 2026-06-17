@@ -8,6 +8,10 @@ inputs:
     description: 'Git Personal Access Token for authentication'
     default: ''
     required: false
+  default-repo-ref:
+    description: 'Default Git reference to check out'
+    default: 'main'
+    required: false
 runs:
   using: "composite"
   steps:

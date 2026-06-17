@@ -42,6 +42,7 @@ def git_clone_repos(
     paths: list[str],
     repo_base_url_template: str,
     git_pat: str,
+    default_repo_ref: str,
 ) -> None:
     for repo_path in paths:
         repo_name = os.path.basename(repo_path)
@@ -57,22 +58,30 @@ def git_clone_repos(
         print(repo_url)
 
         repo_ref_env = f"{repo_name}_REF".upper().replace("-", "_")
-        repo_ref = os.environ.get(repo_ref_env, "main")
+        repo_ref = os.environ.get(repo_ref_env, default_repo_ref)
 
         active_ref = git_clone_repo(repo_url, repo_path, repo_ref)
         logger.info(
-            f"cloned repo {repo_name!r} ref {active_ref!r} " f"in path {repo_path!r}"
+            f"cloned repo {repo_name!r} ref {active_ref!r} in path {repo_path!r}"
         )
 
 
 @app.command()
 def main(
     github_repos: list[str] = typer.Argument(..., help="GitHub repositories to clone"),
-    git_pat: str = typer.Option(default="", envvar="GIT_PAT", help="GitHub Personal Access Token"),
+    git_pat: str = typer.Option(
+        default="", envvar="GIT_PAT", help="GitHub Personal Access Token"
+    ),
+    default_repo_ref: str = typer.Option(
+        default="main", help="Default Git reference to check out"
+    ),
 ):
     logging.basicConfig(level=logging.INFO)
     git_clone_repos(
-        github_repos, "https://{credentials}github.com/{repo_org}/{repo_name}.git", git_pat
+        github_repos,
+        "https://{credentials}github.com/{repo_org}/{repo_name}.git",
+        git_pat,
+        default_repo_ref,
     )
 
 
