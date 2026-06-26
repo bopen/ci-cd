@@ -9,7 +9,6 @@
 import logging
 import os
 import shutil
-import warnings
 from typing import Annotated
 
 import git
