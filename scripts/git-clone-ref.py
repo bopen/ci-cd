@@ -89,7 +89,10 @@ def main(
     ] = None,
     use_pyproject: Annotated[
         bool,
-        typer.Option(help="Whether to parse and use pyproject.toml configuration."),
+        typer.Option(
+            envvar="USE_PYPROJECT",
+            help="Whether to parse and use pyproject.toml configuration.",
+        ),
     ] = False,
     pyproject_path: Annotated[
         str,

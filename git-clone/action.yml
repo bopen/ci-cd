@@ -12,6 +12,14 @@ inputs:
     description: 'Default Git reference to check out'
     default: 'main'
     required: false
+  use-pyproject:
+    description: 'Whether to parse and use pyproject.toml configuration'
+    default: 'false'
+    required: false
+  pyproject-path:
+    description: 'Path to the pyproject.toml file'
+    default: 'pyproject.toml'
+    required: false
 runs:
   using: "composite"
   steps:
@@ -23,5 +31,7 @@ runs:
         GIT_PAT: ${{ inputs.git-pat }}
         REPO_LIST: ${{ inputs.repo-list }}
         DEFAULT_REPO_REF: ${{ inputs.default-repo-ref }}
+        USE_PYPROJECT: ${{ inputs.use-pyproject }}
+        PYPROJECT_PATH: ${{ inputs.pyproject-path }}
       run: |
-        uv run ${{ github.action_path }}/../scripts/git-clone-ref.py ${REPO_LIST} --default-repo-ref ${DEFAULT_REPO_REF}
+        uv run ${{ github.action_path }}/../scripts/git-clone-ref.py ${REPO_LIST} --default-repo-ref ${DEFAULT_REPO_REF} --pyproject-path ${DEFAULT_REPO_REF}
