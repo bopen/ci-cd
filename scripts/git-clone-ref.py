@@ -50,7 +50,7 @@ def git_clone_repos(
     if not paths:
         logger.warning("No repository to clone.")
 
-    for repo_path in paths:
+    for repo_path in set(paths):
         repo_name = os.path.basename(repo_path)
         repo_org = os.path.basename(os.path.dirname(repo_path))
         git_pat_org = os.getenv(f"GIT_PAT_{repo_org.upper()}", git_pat)
