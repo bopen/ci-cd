@@ -85,7 +85,7 @@ def main(
     default_repo_ref: Annotated[
         str,
         typer.Option(help="Default Git reference to check out."),
-    ] = "main",
+    ] = "",
     pyproject_path: Annotated[
         str | None,
         typer.Option(help="Path to the pyproject.toml file."),
