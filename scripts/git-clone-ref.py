@@ -26,7 +26,8 @@ def git_clone_repo(
     repo_ref: str,
     multi_options: tuple[str, ...] = ("--depth=1", "--recurse-submodules"),
 ) -> str:
-    multi_options += (f"--branch {repo_ref}",)
+    if repo_ref:
+        multi_options += (f"--branch {repo_ref}",)
 
     if os.path.exists(repo_path):
         logger.info(f"removing {repo_path!r}")
@@ -102,7 +103,7 @@ def main(
         repo_list or [],
         "https://{credentials}github.com/{repo_org}/{repo_name}.git",
         git_pat or "",
-        default_repo_ref or "main",
+        default_repo_ref or "",
     )
 
 
