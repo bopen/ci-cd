@@ -76,20 +76,24 @@ def git_clone_repos(
 @app.command()
 def main(
     repo_list: Annotated[
-        list[str] | None, typer.Argument(help="GitHub repositories to clone.")
+        list[str] | None,
+        typer.Argument(help="GitHub repositories to clone."),
     ] = None,
     git_pat: Annotated[
-        str | None, typer.Option(envvar="GIT_PAT", help="GitHub Personal Access Token.")
+        str | None,
+        typer.Option(envvar="GIT_PAT", help="GitHub Personal Access Token."),
     ] = None,
     default_repo_ref: Annotated[
-        str | None, typer.Option(help="Default Git reference to check out.")
+        str | None,
+        typer.Option(help="Default Git reference to check out."),
     ] = None,
     use_pyproject: Annotated[
         bool,
         typer.Option(help="Whether to parse and use pyproject.toml configuration."),
     ] = False,
     pyproject_path: Annotated[
-        str, typer.Option(help="Path to the pyproject.toml file.")
+        str,
+        typer.Option(help="Path to the pyproject.toml file."),
     ] = "pyproject.toml",
 ):
     if use_pyproject:
