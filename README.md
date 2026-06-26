@@ -12,7 +12,6 @@ This action can be used in other repositories' workflows to clone multiple repos
 - **`repo-list`** (required): Space-separated list of repositories in `org/repo` format to clone
 - **`git-pat`** (optional): Git Personal Access Token for authentication
 - **`default-repo-ref`** (optional): Default Git reference to check out
-- **`use-pyproject`** (optional): Whether to parse and use pyproject.toml configuration
 - **`pyproject-path`** (optional): Path to the pyproject.toml file
 
 **Example workflow:**
