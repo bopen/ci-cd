@@ -80,7 +80,7 @@ def main(
         str | None, typer.Option(help="Default Git reference to check out.")
     ] = None,
     use_pyproject: Annotated[
-        bool, typer.Option(help="Whether to parse and use pyproject.toml configuration")
+        bool, typer.Option(help="Whether to parse and use pyproject.toml configuration.")
     ] = False,
     pyproject_path: Annotated[
         str, typer.Option(help="Path to the pyproject.toml file.")
