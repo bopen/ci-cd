@@ -9,6 +9,7 @@
 import logging
 import os
 import shutil
+import warnings
 from typing import Annotated
 
 import git
@@ -47,6 +48,9 @@ def git_clone_repos(
     git_pat: str,
     default_repo_ref: str,
 ) -> None:
+    if not paths:
+        logger.warning("No repository to clone.")
+
     for repo_path in paths:
         repo_name = os.path.basename(repo_path)
         repo_org = os.path.basename(os.path.dirname(repo_path))
@@ -81,7 +85,8 @@ def main(
         str | None, typer.Option(help="Default Git reference to check out.")
     ] = None,
     use_pyproject: Annotated[
-        bool, typer.Option(help="Whether to parse and use pyproject.toml configuration.")
+        bool,
+        typer.Option(help="Whether to parse and use pyproject.toml configuration."),
     ] = False,
     pyproject_path: Annotated[
         str, typer.Option(help="Path to the pyproject.toml file.")
