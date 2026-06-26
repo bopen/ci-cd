@@ -6,11 +6,13 @@
 # ]
 # ///
 
-import os
 import logging
+import os
 import shutil
+from typing import Annotated
 
 import git
+import tomllib
 import typer
 
 logger = logging.getLogger(__name__)
@@ -68,20 +70,39 @@ def git_clone_repos(
 
 @app.command()
 def main(
-    github_repos: list[str] = typer.Argument(..., help="GitHub repositories to clone"),
-    git_pat: str = typer.Option(
-        default="", envvar="GIT_PAT", help="GitHub Personal Access Token"
-    ),
-    default_repo_ref: str = typer.Option(
-        default="main", help="Default Git reference to check out"
-    ),
+    repo_list: Annotated[
+        list[str] | None, typer.Argument(help="GitHub repositories to clone.")
+    ] = None,
+    git_pat: Annotated[
+        str | None, typer.Option(envvar="GIT_PAT", help="GitHub Personal Access Token.")
+    ] = None,
+    default_repo_ref: Annotated[
+        str | None, typer.Option(help="Default Git reference to check out.")
+    ] = None,
+    use_pyproject: Annotated[
+        bool, typer.Option(help="Whether to parse and use pyproject.toml configuration")
+    ] = False,
+    pyproject_path: Annotated[
+        str, typer.Option(help="Path to the pyproject.toml file.")
+    ] = "pyproject.toml",
 ):
+    if use_pyproject:
+        with open(pyproject_path, "rb") as fp:
+            pyproject = tomllib.load(fp)
+        config = pyproject.get("tool", {}).get("git-clone", {})
+        if repo_list is None:
+            repo_list = config.get("repo-list")
+        if git_pat is None:
+            git_pat = config.get("git-pat")
+        if default_repo_ref is None:
+            default_repo_ref = config.get("default-repo-ref")
+
     logging.basicConfig(level=logging.INFO)
     git_clone_repos(
-        github_repos,
+        repo_list or [],
         "https://{credentials}github.com/{repo_org}/{repo_name}.git",
-        git_pat,
-        default_repo_ref,
+        git_pat or "",
+        default_repo_ref or "main",
     )
 
 
