@@ -6,11 +6,13 @@
 # ]
 # ///
 
-import os
 import logging
+import os
 import shutil
+from typing import Annotated
 
 import git
+import tomllib
 import typer
 
 logger = logging.getLogger(__name__)
@@ -24,7 +26,8 @@ def git_clone_repo(
     repo_ref: str,
     multi_options: tuple[str, ...] = ("--depth=1", "--recurse-submodules"),
 ) -> str:
-    multi_options += (f"--branch {repo_ref}",)
+    if repo_ref:
+        multi_options += (f"--branch {repo_ref}",)
 
     if os.path.exists(repo_path):
         logger.info(f"removing {repo_path!r}")
@@ -44,7 +47,10 @@ def git_clone_repos(
     git_pat: str,
     default_repo_ref: str,
 ) -> None:
-    for repo_path in paths:
+    if not paths:
+        logger.warning("No repository to clone.")
+
+    for repo_path in set(paths):
         repo_name = os.path.basename(repo_path)
         repo_org = os.path.basename(os.path.dirname(repo_path))
         git_pat_org = os.getenv(f"GIT_PAT_{repo_org.upper()}", git_pat)
@@ -68,17 +74,32 @@ def git_clone_repos(
 
 @app.command()
 def main(
-    github_repos: list[str] = typer.Argument(..., help="GitHub repositories to clone"),
-    git_pat: str = typer.Option(
-        default="", envvar="GIT_PAT", help="GitHub Personal Access Token"
-    ),
-    default_repo_ref: str = typer.Option(
-        default="main", help="Default Git reference to check out"
-    ),
+    repo_list: Annotated[
+        list[str],
+        typer.Argument(help="GitHub repositories to clone."),
+    ] = [],
+    git_pat: Annotated[
+        str,
+        typer.Option(envvar="GIT_PAT", help="GitHub Personal Access Token."),
+    ] = "",
+    default_repo_ref: Annotated[
+        str,
+        typer.Option(help="Default Git reference to check out."),
+    ] = "",
+    pyproject_path: Annotated[
+        str | None,
+        typer.Option(help="Path to the pyproject.toml file."),
+    ] = None,
 ):
+    if pyproject_path:
+        with open(pyproject_path, "rb") as fp:
+            pyproject = tomllib.load(fp)
+        config = pyproject.get("tool", {}).get("git-clone", {})
+        repo_list.extend(config.get("repo-list", []))
+
     logging.basicConfig(level=logging.INFO)
     git_clone_repos(
-        github_repos,
+        repo_list,
         "https://{credentials}github.com/{repo_org}/{repo_name}.git",
         git_pat,
         default_repo_ref,
