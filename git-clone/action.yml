@@ -29,5 +29,4 @@ runs:
         DEFAULT_REPO_REF: ${{ inputs.default-repo-ref }}
         PYPROJECT_PATH: ${{ inputs.pyproject-path }}
       run: |
-        cd "$GITHUB_ACTION_PATH/../scripts"
-        uv run ./git-clone-ref.py ${REPO_LIST} --default-repo-ref "${DEFAULT_REPO_REF}" --pyproject-path "${PYPROJECT_PATH}"
+        uv run "$GITHUB_ACTION_PATH/../scripts/git-clone-ref.py" ${REPO_LIST} --default-repo-ref "${DEFAULT_REPO_REF}" --pyproject-path "${PYPROJECT_PATH}"
