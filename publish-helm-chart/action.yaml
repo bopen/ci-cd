@@ -9,18 +9,24 @@ inputs:
     description: 'The name of the repository'
     required: true
     type: string
-secrets:
-  DOCKER_REGISTRY_USERNAME:
+  dockerRegistryUsername:
     description: 'The username for the helm registry'
-  DOCKER_REGISTRY_ACCESS_TOKEN:
+    required: false
+    type: string
+  dockerRegistryAccessToken:
     description: 'The access token for the helm registry'
+    required: false
+    type: string
 runs:
   using: "composite"
   steps:
     - name: Show inputs
+      shell: bash
       run: |
         echo "chartVersion: ${{ inputs.chartVersion }}"
         echo "repoName: ${{ inputs.repoName }}"
+        echo "dockerRegistryUsername: ${{ inputs.dockerRegistryUsername != '' && 'set' || 'empty' }}"
+        echo "dockerRegistryAccessToken: ${{ inputs.dockerRegistryAccessToken != '' && 'set' || 'empty' }}"
     - name: Checkout chart-repo
       uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
       with:
