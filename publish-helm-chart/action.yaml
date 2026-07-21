@@ -1,0 +1,28 @@
+name: Publish Helm Chart
+description: 'Builds and publishes a Helm chart to Helm registry'
+inputs:
+  chartVersion:
+    description: 'The version of the chart to build'
+    required: true
+    type: string
+  repoName:
+    description: 'The name of the repository'
+    required: true
+    type: string
+secrets:
+  DOCKER_REGISTRY_USERNAME:
+    description: 'The username for the helm registry'
+  DOCKER_REGISTRY_ACCESS_TOKEN:
+    description: 'The access token for the helm registry'
+runs:
+  using: "composite"
+  steps:
+    - name: Show inputs
+      run: |
+        echo "chartVersion: ${{ inputs.chartVersion }}"
+        echo "repoName: ${{ inputs.repoName }}"
+    - name: Checkout chart-repo
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      with:
+        repository: ${{ inputs.repoName }}
+        fetch-depth: 0
