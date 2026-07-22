@@ -35,17 +35,13 @@ runs:
     - name: Set Chart Version
       shell: bash
       run: |
-        VERSION="${{ inputs.chartVersion }}"
+        VERSION="0.0.0" # "${{ inputs.chartVersion }}"
         echo "Setting Chart.yaml version to: $VERSION"
         sed -i "s/version: .*/version: $VERSION/g" Chart.yaml
     - name: Set App Version
       shell: bash
       run: |
-        APP_VERSION="${{ inputs.chartVersion }}"
-        if [ -z "$APP_VERSION" ]; then
-          APP_VERSION="${{ steps.version.outputs.version }}"
-        fi
-        echo "Setting Chart.yaml appVersion to: $APP_VERSION"
+        echo "Setting Chart.yaml appVersion to: <APP_VERSION> Placeholder"
         sed -i "s/appVersion: .*/appVersion: <APP_VERSION>/g" Chart.yaml
     - name: Show chart contents
       shell: bash
