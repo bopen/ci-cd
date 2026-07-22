@@ -36,7 +36,7 @@ runs:
       uses: appany/helm-oci-chart-releaser@v0.5.0
       with:
         path: .
-        name: ${{ inputs.repoName }}
+        name: dss-broker # ${{ inputs.repoName }}
         repository: cads/helm
         tag: 0.0.0
         registry: eccr.ecmwf.int
