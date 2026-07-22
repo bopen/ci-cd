@@ -32,13 +32,20 @@ runs:
       with:
         repository: ${{ inputs.repoName }}
         fetch-depth: 0
+    - name: set chart name
+      id: set_chart_name
+      shell: bash
+      run: |
+        echo "Setting chart name to: ${{ inputs.repoName }}"
+        CHART_NAME=$(echo ${{ inputs.repoName }} | cut -d"-" -f 1,2)
+        echo "chart-name=$CHART_NAME" >> $GITHUB_OUTPUT
     - name: Chart Build and Push
       uses: appany/helm-oci-chart-releaser@v0.5.0
       with:
         path: .
-        name: dss-broker # ${{ inputs.repoName }}
-        repository: cads/helm
-        tag: 0.0.0
+        name: ${{ steps.set_chart_name.outputs.chart-name }}
+        tag: ${{ inputs.chartVersion }}
         registry: eccr.ecmwf.int
+        repository: cads/helm
         registry_username: ${{ inputs.dockerRegistryUsername }}
         registry_password: ${{ inputs.dockerRegistryAccessToken }}
