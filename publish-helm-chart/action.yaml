@@ -38,7 +38,7 @@ runs:
         path: .
         name: ${{ inputs.repoName }}
         repository: cads/helm
-        tag: ${{ inputs.chartVersion }}
+        tag: 0.0.0
         registry: eccr.ecmwf.int
         registry_username: ${{ inputs.dockerRegistryUsername }}
         registry_password: ${{ inputs.dockerRegistryAccessToken }}
