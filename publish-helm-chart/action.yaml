@@ -32,6 +32,27 @@ runs:
       with:
         repository: ${{ inputs.repoName }}
         fetch-depth: 0
+    - name: Set Chart Version
+      shell: bash
+      run: |
+        VERSION="${{ inputs.chartVersion }}"
+        echo "Setting Chart.yaml version to: $VERSION"
+        sed -i "s/version: .*/version: $VERSION/g" Chart.yaml
+    - name: Set App Version
+      shell: bash
+      run: |
+        APP_VERSION="${{ inputs.chartVersion }}"
+        if [ -z "$APP_VERSION" ]; then
+          APP_VERSION="${{ steps.version.outputs.version }}"
+        fi
+        echo "Setting Chart.yaml appVersion to: $APP_VERSION"
+        sed -i "s/appVersion: .*/appVersion: <APP_VERSION>/g" Chart.yaml
+    - name: Show chart contents
+      shell: bash
+      run: |
+        echo "###### Chart.yaml contents after version update ###"
+        cat Chart.yaml
+        echo "###### End Chart.yaml contents ###"
     - name: set chart name
       id: set_chart_name
       shell: bash
