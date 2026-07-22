@@ -54,7 +54,7 @@ runs:
       shell: bash
       run: |
         echo "Setting chart name to: ${{ inputs.repoName }}"
-        CHART_NAME=$(echo ${{ inputs.repoName }} | cut -d"-" -f 1,2)
+        CHART_NAME=$(echo ${{ inputs.repoName }} | sed 's/-chart$//g')
         echo "chart-name=$CHART_NAME" >> $GITHUB_OUTPUT
     - name: Chart Build and Push
       uses: appany/helm-oci-chart-releaser@v0.5.0
