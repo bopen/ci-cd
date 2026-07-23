@@ -41,8 +41,8 @@ runs:
     - name: Set App Version
       shell: bash
       run: |
-        echo "Setting Chart.yaml appVersion to: <APP_VERSION> Placeholder"
-        sed -i "s/appVersion: .*/appVersion: <APP_VERSION>/g" Chart.yaml
+        echo "Setting Chart.yaml appVersion to: REPLACE_APP_VERSION Placeholder"
+        sed -i "s/appVersion: .*/appVersion: REPLACE_APP_VERSION/g" Chart.yaml
     - name: Show chart contents
       shell: bash
       run: |
