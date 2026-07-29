@@ -9,6 +9,7 @@
 import logging
 import os
 import shutil
+import tempfile
 from typing import Annotated
 
 import git
@@ -29,16 +30,26 @@ def git_clone_repo(
     if repo_ref:
         multi_options += (f"--branch {repo_ref}",)
 
-    if os.path.exists(repo_path):
-        logger.info(f"removing {repo_path!r}")
-        shutil.rmtree(repo_path)
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        temp_repo_path = os.path.join(tmpdirname, os.path.basename(repo_path))
+        repo = git.Repo.clone_from(
+            repo_url,
+            temp_repo_path,
+            multi_options=multi_options,
+        )
 
-    repo = git.Repo.clone_from(repo_url, repo_path, multi_options=multi_options)
+        try:
+            active_ref = repo.active_branch.name
+        except TypeError:
+            active_ref = next(
+                tag for tag in repo.tags if tag.commit == repo.head.commit
+            ).name
 
-    try:
-        return repo.active_branch.name
-    except TypeError:
-        return next((tag for tag in repo.tags if tag.commit == repo.head.commit)).name
+        if os.path.exists(repo_path):
+            shutil.rmtree(repo_path)
+        shutil.move(temp_repo_path, repo_path)
+
+    return active_ref
 
 
 def git_clone_repos(
@@ -66,10 +77,15 @@ def git_clone_repos(
         repo_ref_env = f"{repo_name}_REF".upper().replace("-", "_")
         repo_ref = os.environ.get(repo_ref_env, default_repo_ref)
 
-        active_ref = git_clone_repo(repo_url, repo_path, repo_ref)
-        logger.info(
-            f"cloned repo {repo_name!r} ref {active_ref!r} in path {repo_path!r}"
-        )
+        try:
+            active_ref = git_clone_repo(repo_url, repo_path, repo_ref)
+            logger.info(
+                f"cloned repo {repo_name!r} ref {active_ref!r} in path {repo_path!r}"
+            )
+        except (git.exc.GitError, OSError) as e:
+            logger.error(
+                f"failed to clone repo {repo_name!r} ref {repo_ref!r} in path {repo_path!r}: {e}"
+            )
 
 
 @app.command()
