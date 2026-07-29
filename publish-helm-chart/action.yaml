@@ -23,12 +23,54 @@ runs:
     - name: Show inputs
       shell: bash
       run: |
-        echo "chartVersion: ${{ inputs.chartVersion }}"
-        echo "repoName: ${{ inputs.repoName }}"
+        echo "chartVersion: ${INPUTS_CHARTVERSION}"
+        echo "repoName: ${INPUTS_REPONAME}"
         echo "dockerRegistryUsername: ${{ inputs.dockerRegistryUsername != '' && 'set' || 'empty' }}"
         echo "dockerRegistryAccessToken: ${{ inputs.dockerRegistryAccessToken != '' && 'set' || 'empty' }}"
+      env:
+        INPUTS_CHARTVERSION: ${{ inputs.chartVersion }}
+        INPUTS_REPONAME: ${{ inputs.repoName }}
     - name: Checkout chart-repo
-      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         repository: ${{ inputs.repoName }}
         fetch-depth: 0
+        persist-credentials: false
+    - name: Set Chart Version
+      shell: bash
+      run: |
+        VERSION="${INPUTS_CHARTVERSION}"
+        echo "Setting Chart.yaml version to: $VERSION"
+        sed -i "s/version: .*/version: $VERSION/g" Chart.yaml
+      env:
+        INPUTS_CHARTVERSION: ${{ inputs.chartVersion }}
+    - name: Set App Version
+      shell: bash
+      run: |
+        echo "Setting Chart.yaml appVersion to: REPLACE_APP_VERSION Placeholder"
+        sed -i "s/appVersion: .*/appVersion: REPLACE_APP_VERSION/g" Chart.yaml
+    - name: Show chart contents
+      shell: bash
+      run: |
+        echo "###### Chart.yaml contents after version update ###"
+        cat Chart.yaml
+        echo "###### End Chart.yaml contents ###"
+    - name: set chart name
+      id: set_chart_name
+      shell: bash
+      run: |
+        echo "Setting chart name to: ${INPUTS_REPONAME}"
+        CHART_NAME=$(echo ${INPUTS_REPONAME} | sed 's/-chart$//g')
+        echo "chart-name=$CHART_NAME" >> $GITHUB_OUTPUT
+      env:
+        INPUTS_REPONAME: ${{ inputs.repoName }}
+    - name: Chart Build and Push
+      uses: appany/helm-oci-chart-releaser@d94988c92bed2e09c6113981f15f8bb495d10943 # v0.5.0
+      with:
+        path: .
+        name: ${{ steps.set_chart_name.outputs.chart-name }}
+        tag: ${{ inputs.chartVersion }}
+        registry: eccr.ecmwf.int
+        repository: cads/helm
+        registry_username: ${{ inputs.dockerRegistryUsername }}
+        registry_password: ${{ inputs.dockerRegistryAccessToken }}
