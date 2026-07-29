@@ -23,21 +23,27 @@ runs:
     - name: Show inputs
       shell: bash
       run: |
-        echo "chartVersion: ${{ inputs.chartVersion }}"
-        echo "repoName: ${{ inputs.repoName }}"
+        echo "chartVersion: ${INPUTS_CHARTVERSION}"
+        echo "repoName: ${INPUTS_REPONAME}"
         echo "dockerRegistryUsername: ${{ inputs.dockerRegistryUsername != '' && 'set' || 'empty' }}"
         echo "dockerRegistryAccessToken: ${{ inputs.dockerRegistryAccessToken != '' && 'set' || 'empty' }}"
+      env:
+        INPUTS_CHARTVERSION: ${{ inputs.chartVersion }}
+        INPUTS_REPONAME: ${{ inputs.repoName }}
     - name: Checkout chart-repo
       uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
       with:
         repository: ${{ inputs.repoName }}
         fetch-depth: 0
+        persist-credentials: false
     - name: Set Chart Version
       shell: bash
       run: |
-        VERSION="${{ inputs.chartVersion }}"
+        VERSION="${INPUTS_CHARTVERSION}"
         echo "Setting Chart.yaml version to: $VERSION"
         sed -i "s/version: .*/version: $VERSION/g" Chart.yaml
+      env:
+        INPUTS_CHARTVERSION: ${{ inputs.chartVersion }}
     - name: Set App Version
       shell: bash
       run: |
@@ -53,9 +59,11 @@ runs:
       id: set_chart_name
       shell: bash
       run: |
-        echo "Setting chart name to: ${{ inputs.repoName }}"
-        CHART_NAME=$(echo ${{ inputs.repoName }} | sed 's/-chart$//g')
+        echo "Setting chart name to: ${INPUTS_REPONAME}"
+        CHART_NAME=$(echo ${INPUTS_REPONAME} | sed 's/-chart$//g')
         echo "chart-name=$CHART_NAME" >> $GITHUB_OUTPUT
+      env:
+        INPUTS_REPONAME: ${{ inputs.repoName }}
     - name: Chart Build and Push
       uses: appany/helm-oci-chart-releaser@v0.5.0
       with:
