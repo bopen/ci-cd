@@ -12,4 +12,4 @@ runs:
         TARGET_PATH: ${{ inputs.target-path }}
       shell: bash
       run: |
-        cp ${{ github.action_path }}/../scripts/git-clone-ref.py ${{ env.TARGET_PATH }}
+        cp ${{ github.action_path }}/../scripts/git-clone-ref.py ${TARGET_PATH}
