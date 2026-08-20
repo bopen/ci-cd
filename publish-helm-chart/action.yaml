@@ -100,7 +100,8 @@ runs:
           --password-stdin
         
         # Target standard Helm OCI path: registry/repo/chartname:tag
-        SOURCE_REF="${REGISTRY}/${REPOSITORY}/${NAME}:${TAG}"
+        REPONAME=$(basename "$NAME")
+        SOURCE_REF="${REGISTRY}/${REPOSITORY}/${REPONAME}:${TAG}"
         
         # Iterate through space-separated additional tags
         for ALIAS_TAG in $ADDITIONAL_TAGS; do
