@@ -5,6 +5,10 @@ inputs:
     description: 'The version of the chart to build'
     required: true
     type: string
+  additionalTags:
+    description: 'Additional tags to apply to the chart in the registry'
+    required: false
+    type: string
   repoName:
     description: 'The name of the repository'
     required: true
@@ -74,3 +78,11 @@ runs:
         repository: cads/helm
         registry_username: ${{ inputs.dockerRegistryUsername }}
         registry_password: ${{ inputs.dockerRegistryAccessToken }}
+    - name: Additional tags
+      uses: shrink/actions-docker-registry-tag@v5
+      if: ${{ inputs.additionalTags != '' }}
+      with:
+        registry: eccr.ecmwf.int
+        repository: cads/helm
+        target: ${{ inputs.chartVersion }}
+        tags: ${{ inputs.additionalTags }}
