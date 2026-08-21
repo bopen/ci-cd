@@ -5,6 +5,10 @@ inputs:
     description: 'The version of the chart to build'
     required: true
     type: string
+  additionalTags:
+    description: 'Additional tags to apply to the chart in the registry'
+    required: false
+    type: string
   repoName:
     description: 'The name of the repository'
     required: true
@@ -24,6 +28,7 @@ runs:
       shell: bash
       run: |
         echo "chartVersion: ${INPUTS_CHARTVERSION}"
+        echo "additionalTags: ${INPUTS_ADDITIONALTAGS}"
         echo "repoName: ${INPUTS_REPONAME}"
         echo "dockerRegistryUsername: ${{ inputs.dockerRegistryUsername != '' && 'set' || 'empty' }}"
         echo "dockerRegistryAccessToken: ${{ inputs.dockerRegistryAccessToken != '' && 'set' || 'empty' }}"
@@ -74,3 +79,33 @@ runs:
         repository: cads/helm
         registry_username: ${{ inputs.dockerRegistryUsername }}
         registry_password: ${{ inputs.dockerRegistryAccessToken }}
+    - name: Additional tags
+      if: inputs.additionalTags != ''
+      env:
+        NAME: ${{ steps.set_chart_name.outputs.chart-name }}
+        REGISTRY: eccr.ecmwf.int
+        REPOSITORY: cads/helm
+        TAG: ${{ inputs.chartVersion }}
+        ADDITIONAL_TAGS: ${{ inputs.additionalTags }}
+        REGISTRY_USERNAME: ${{ inputs.dockerRegistryUsername }}
+        REGISTRY_PASSWORD: ${{ inputs.dockerRegistryAccessToken }}
+      shell: bash
+      run: |
+        # Install ORAS (lightweight OCI tool)
+        curl -sLO "https://github.com/oras-project/oras/releases/download/v1.2.0/oras_1.2.0_linux_amd64.tar.gz"
+        tar -zxf oras_1.2.0_linux_amd64.tar.gz oras
+        
+        # Log into registry with ORAS
+        echo "$REGISTRY_PASSWORD" | ./oras login "$REGISTRY" \
+          --username "$REGISTRY_USERNAME" \
+          --password-stdin
+        
+        # Target standard Helm OCI path: registry/repo/chartname:tag
+        REPONAME=$(basename "$NAME")
+        SOURCE_REF="${REGISTRY}/${REPOSITORY}/${REPONAME}:${TAG}"
+        
+        # Iterate through space-separated additional tags
+        for ALIAS_TAG in $ADDITIONAL_TAGS; do
+          echo "Retagging remote chart to: $ALIAS_TAG"
+          ./oras tag "$SOURCE_REF" "$ALIAS_TAG"
+        done
