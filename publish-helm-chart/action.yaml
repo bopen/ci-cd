@@ -28,6 +28,7 @@ runs:
       shell: bash
       run: |
         echo "chartVersion: ${INPUTS_CHARTVERSION}"
+        echo "additionalTags: ${INPUTS_ADDITIONALTAGS}"
         echo "repoName: ${INPUTS_REPONAME}"
         echo "dockerRegistryUsername: ${{ inputs.dockerRegistryUsername != '' && 'set' || 'empty' }}"
         echo "dockerRegistryAccessToken: ${{ inputs.dockerRegistryAccessToken != '' && 'set' || 'empty' }}"
