@@ -104,6 +104,53 @@ This action can be used in workflows to ensure that the `uv.lock` file is correc
       repo-path: path/to/repository
 ~~~
 
+## copy-git-clone-script Action
+
+A GitHub Action that copies the `git-clone-ref.py` script into a directory of the calling repository.
+
+### Usage
+
+**Inputs:**
+- **`target-path`** (required): The directory where `git-clone-ref.py` should be copied
+
+**Example workflow:**
+~~~yaml
+  - name: Copy git clone script
+    uses: bopen/ci-cd/copy-git-clone-script@main
+    with:
+      target-path: scripts
+~~~
+
+## Scripts
+
+The scripts backing the actions live in `src/ci_cd` and are packaged as a uv project, so they can also be run locally:
+
+- **`git-clone-ref`**: clones multiple repositories (used by the `git-clone` action)
+- **`get-kube`**: downloads a kubeconfig from Proton Pass
+
+### get-kube
+
+Downloads the kubeconfig of a Kubernetes environment stored in Proton Pass, using the `pass-cli` command-line tool.
+
+Each project is a Proton Pass vault, and each environment is an item in that vault with the kubeconfig as its only attachment.
+
+**Requirements:**
+- `pass-cli` installed and on `PATH`
+- Logged in with `pass-cli login`
+
+**Options:**
+- **`-p, --project`** (required, env `CICD_PROJECT`): Name of the vault containing the kubeconfig
+- **`-e, --environment`** (required, env `CICD_ENVIRONMENT`): Name of the item holding the kubeconfig
+- **`-o, --output-path`** (optional, env `CICD_OUTPUT_PATH`): Where to save the kubeconfig. Defaults to `local.<environment>.kubeconfig.yaml` in the current directory, with spaces replaced by `_`
+
+**Example:**
+~~~bash
+uv run get-kube -p my-project -e "production eu"
+export KUBECONFIG=$PWD/local.production_eu.kubeconfig.yaml
+~~~
+
+The file is saved readable only by its owner (`0600`), since it contains cluster credentials. Running `uv run get-kube` with no arguments prints the help.
+
 ## License
 
 ```
