@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # /// script
+# requires-python = ">=3.12"
 # dependencies = [
 #   "gitpython",
 #   "typer",
@@ -10,10 +11,10 @@ import logging
 import os
 import shutil
 import tempfile
+import tomllib
 from typing import Annotated
 
 import git
-import tomllib
 import typer
 
 logger = logging.getLogger(__name__)

@@ -1,0 +1,21 @@
+[project]
+name = "ci-cd"
+version = "0.1.0"
+description = "Reusable GitHub Actions and the scripts backing them"
+readme = "README.md"
+authors = [
+    { name = "Francesco Nazzaro", email = "francesconazzaro89@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "gitpython",
+    "typer",
+]
+
+[project.scripts]
+git-clone-ref = "ci_cd.git_clone_ref:app"
+get-kube = "ci_cd.get_kube:app"
+
+[build-system]
+requires = ["uv_build>=0.12.7,<0.13.0"]
+build-backend = "uv_build"
