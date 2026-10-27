@@ -6,14 +6,11 @@
 
 
 import json
-import logging
 import pathlib
 import subprocess
 from typing import Annotated
 
 import typer
-
-logger = logging.getLogger(__name__)
 
 app = typer.Typer()
 
@@ -38,7 +35,7 @@ def get_vault_id(name) -> str:
     vaults = run_pass_cli("vault", "list")["vaults"]
     for vault in vaults:
         if vault["name"] == name:
-            logger.info(f"Found vault {name!r} with ID {vault['share_id']!r}")
+            print(f"Found vault {name!r} with ID {vault['share_id']!r}")
             return vault["share_id"]
     raise ValueError(f"vault {name!r} not found")
 
@@ -54,13 +51,13 @@ def get_item_id(vault_id: str, item_name: str) -> str:
     items = run_pass_cli("item", "list", f"--share-id={vault_id}")["items"]
     for item in items:
         if item["title"] == item_name:
-            logger.info(f"Found item {item_name!r} with ID {item['id']!r} in vault {vault_id!r}")
+            print(f"Found item {item_name!r} with ID {item['id']!r} in vault {vault_id!r}")
             return item["id"]
     raise ValueError(f"item {item_name!r} not found in vault {vault_id!r}")
 
 
 def get_attachment_id(
-    vault_id: str, item_id: str, attachment_name: str = "kubeconfig.yaml"
+    vault_id: str, item_id: str
 ) -> str:
     """
     Get the attachment ID for a given vault ID, item ID, and attachment name using the `pass-cli` command-line tool.
@@ -68,18 +65,13 @@ def get_attachment_id(
     Args:
         vault_id (str): The ID of the vault containing the item.
         item_id (str): The ID of the item containing the attachment.
-        attachment_name (str): The name of the attachment to retrieve the ID for.
     """
     attachments = run_pass_cli(
         "item", "view", f"--share-id={vault_id}", f"--item-id={item_id}"
     )["attachments"]
-    for attachment in attachments:
-        if attachment["content"]["name"] == attachment_name:
-            logger.info(f"Found attachment {attachment_name!r} with ID {attachment['id']!r} in item {item_id!r} of vault {vault_id!r}")
-            return attachment["id"]
-    raise ValueError(
-        f"attachment {attachment_name!r} not found in item {item_id!r} of vault {vault_id!r}"
-    )
+    assert len(attachments) == 1, f"Expected exactly one attachment in item {item_id!r} of vault {vault_id!r}, but found {len(attachments)}"
+    print(f"Found attachment {attachments[0]['content']['name']!r} with ID {attachments[0]['id']!r} in item {item_id!r} of vault {vault_id!r}")
+    return attachments[0]["id"]
 
 
 def download_kubeconfig(
@@ -94,7 +86,7 @@ def download_kubeconfig(
         attachment_id (str): The ID of the attachment to download.
         output_path (pathlib.Path): The path where the kubeconfig file will be saved.
     """
-    logger.info(f"Downloading kubeconfig from vault {vault_id!r}, item {item_id!r}, attachment {attachment_id!r}")
+    print(f"Downloading kubeconfig from vault {vault_id!r}, item {item_id!r}, attachment {attachment_id!r}")
     output_path.parent.mkdir(parents=True, exist_ok=True)
     subprocess.run(
         [
@@ -108,19 +100,21 @@ def download_kubeconfig(
             f"--output={output_path}",
         ],
         check=True,
+        capture_output=True,
     )
+    print(f"Downloaded kubeconfig to {output_path.name!r}")
     return str(output_path)
 
 
 @app.command()
 def main(
-    vault: Annotated[
+    project: Annotated[
         str,
         typer.Option(
-            "--vault",
-            "-v",
-            envvar="CICD_VAULT_NAME",
-            help="Name of the vault containing the kubeconfig.",
+            "--project",
+            "-p",
+            envvar="CICD_PROJECT",
+            help="Name of the project containing the kubeconfig.",
         ),
     ],
     environment: Annotated[
@@ -139,8 +133,7 @@ def main(
         ),
     ] = None,
 ):
-    logging.basicConfig(level=logging.INFO)
-    vault_id = get_vault_id(vault)
+    vault_id = get_vault_id(project)
     item_id = get_item_id(vault_id, environment)
     attachment_id = get_attachment_id(vault_id, item_id)
     if output_path is None:
