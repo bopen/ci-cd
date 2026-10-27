@@ -30,7 +30,7 @@ def run_pass_cli(*args: str) -> dict:
     return json.loads(result.stdout)
 
 
-def get_vault_id(name) -> str:
+def get_vault_id(name: str) -> str:
     """
     Get the vault ID for a given name using the `pass-cli` command-line tool.
 
@@ -61,11 +61,9 @@ def get_item_id(vault_id: str, item_name: str) -> str:
     raise ValueError(f"item {item_name!r} not found in vault {vault_id!r}")
 
 
-def get_attachment_id(
-    vault_id: str, item_id: str
-) -> str:
+def get_attachment_id(vault_id: str, item_id: str) -> str:
     """
-    Get the attachment ID for a given vault ID, item ID, and attachment name using the `pass-cli` command-line tool.
+    Get the ID of the single attachment of a given item using the `pass-cli` command-line tool.
 
     Args:
         vault_id (str): The ID of the vault containing the item.
@@ -74,14 +72,17 @@ def get_attachment_id(
     attachments = run_pass_cli(
         "item", "view", f"--share-id={vault_id}", f"--item-id={item_id}"
     )["attachments"]
-    assert len(attachments) == 1, f"Expected exactly one attachment in item {item_id!r} of vault {vault_id!r}, but found {len(attachments)}"
+    if len(attachments) != 1:
+        raise ValueError(
+            f"expected exactly one attachment in item {item_id!r} of vault {vault_id!r}, found {len(attachments)}"
+        )
     logger.debug(f"Found attachment {attachments[0]['content']['name']!r} with ID {attachments[0]['id']!r} in item {item_id!r} of vault {vault_id!r}")
     return attachments[0]["id"]
 
 
 def download_kubeconfig(
     vault_id: str, item_id: str, attachment_id: str, output_path: pathlib.Path
-) -> str:
+) -> None:
     """
     Download a kubeconfig file from a vault and save it to the specified output path.
 
@@ -106,9 +107,10 @@ def download_kubeconfig(
         ],
         check=True,
         capture_output=True,
+        text=True,
     )
-    logger.info(f"Downloaded kubeconfig to {output_path.name!r}")
-    return str(output_path)
+    output_path.chmod(0o600)
+    logger.info(f"Downloaded kubeconfig to {str(output_path)!r}")
 
 
 @app.command(no_args_is_help=True)
@@ -141,11 +143,29 @@ def main(
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     if output_path is None:
         output_path = pathlib.Path(f"local.{environment.replace(' ', '_')}.kubeconfig.yaml")
-    logger.info(f"Downloading kubeconfig for project {project!r} and environment {environment!r} to {output_path.name!r}")
-    vault_id = get_vault_id(project)
-    item_id = get_item_id(vault_id, environment)
-    attachment_id = get_attachment_id(vault_id, item_id)
-    download_kubeconfig(vault_id, item_id, attachment_id, output_path)
+    try:
+        logged_in = subprocess.run(["pass-cli", "info"], capture_output=True, text=True, check=False)
+        if logged_in.returncode != 0:
+            logger.error(
+                "You are not logged in to pass-cli. Please log in with 'pass-cli login' and try again."
+            )
+            raise typer.Exit(1)
+        logger.info(f"Downloading kubeconfig for project {project!r} and environment {environment!r} to {str(output_path)!r}")
+        vault_id = get_vault_id(project)
+        item_id = get_item_id(vault_id, environment)
+        attachment_id = get_attachment_id(vault_id, item_id)
+        download_kubeconfig(vault_id, item_id, attachment_id, output_path)
+    except FileNotFoundError as e:
+        if e.filename != "pass-cli":
+            raise
+        logger.error("pass-cli is not installed or not on PATH.")
+        raise typer.Exit(1)
+    except subprocess.CalledProcessError as e:
+        logger.error(f"pass-cli failed: {(e.stderr or '').strip() or e}")
+        raise typer.Exit(1)
+    except ValueError as e:
+        logger.error(str(e))
+        raise typer.Exit(1)
 
 
 if __name__ == "__main__":
