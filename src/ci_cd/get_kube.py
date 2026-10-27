@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # /// script
 # requires-python = ">=3.12"
-# dependencies = []
+# dependencies = [
+#     "typer",
+# ]
 # ///
 
 
@@ -109,7 +111,7 @@ def download_kubeconfig(
     return str(output_path)
 
 
-@app.command()
+@app.command(no_args_is_help=True)
 def main(
     project: Annotated[
         str,
