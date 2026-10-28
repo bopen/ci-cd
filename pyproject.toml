@@ -15,6 +15,7 @@ dependencies = [
 [project.scripts]
 git-clone-ref = "ci_cd.git_clone_ref:app"
 get-kube = "ci_cd.get_kube:app"
+put-kube = "ci_cd.put_kube:app"
 
 [build-system]
 requires = ["uv_build>=0.12.7,<0.13.0"]
