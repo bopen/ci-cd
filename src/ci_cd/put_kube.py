@@ -59,7 +59,7 @@ def get_vault_id(vault: str) -> str:
         raise LookupError(f"Expected vault {vault!r}, got {result['name']!r}")
     return result["share_id"]
 
-def get_item_id(vault: str, item: str) -> str:
+def get_item_id(project: str, vault_id: str, item: str) -> str:
     """Return the ID of an item with the given name in a vault.
 
     Args:
@@ -69,13 +69,13 @@ def get_item_id(vault: str, item: str) -> str:
     Raises:
         LookupError: If no item with that name exists in the vault.
     """
-    result = run_proton_cli("pass", "items", "list", "--vault", vault, "--limit", "0")
+    result = run_proton_cli("pass", "items", "list", "--vault", vault_id, "--limit", "0")
     for entry in result["items"]:
         if entry["name"] == item:
             return entry["item_id"]
-    raise LookupError(f"Item {item!r} not found in vault {vault!r}")
+    raise LookupError(f"Item {item!r} not found in vault {project!r}")
 
-def update_item_attach(vault: str, item: str, attachment: str) -> dict:
+def update_item_attach(item: str, attachment: str) -> dict:
     """Replace the matching remote attachment with a local file.
 
     Args:
@@ -118,17 +118,26 @@ def main(
     """
     try:
         isconnected = check_connection()
-        print_status("Test Connection", isconnected)
+        print_status("Connected to Proton pass:", isconnected)
         vault_id = get_vault_id(project)
-        print_status("Get Vault ID", vault_id)
-        item_id = get_item_id(vault_id, environment)
-        print_status("Get Item ID", item_id )
-        update = update_item_attach(vault_id, item_id, attach)
+        print("Project:", project, "- Vault ID:", vault_id)
+        item_id = get_item_id(project, vault_id, environment)
+        print("Item", environment, "Item ID:", item_id )
+        update = update_item_attach(item_id, attach)
         print_status("Update Attachment", update["action"])
-    except Exception as e:
-        import traceback
-        print(f"EXCEPTION CAUGHT: {type(e).__name__}: {e!r}")
-        traceback.print_exc()
+    # Kept for debugging purpose only
+    # except Exception as e:
+    #     import traceback
+    #     print(f"EXCEPTION CAUGHT: {type(e).__name__}: {e!r}")
+    #     traceback.print_exc()
+    #     raise typer.Exit(255)
+    except subprocess.CalledProcessError as e:
+        print("Subprocess:", str(e))
+        raise typer.Exit(1)
+    except LookupError as e:
+        print("LookUp:", str(e))
+        raise typer.Exit(1)
+
 
 if __name__ == "__main__":
     app()
