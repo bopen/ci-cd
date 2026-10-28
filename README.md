@@ -127,6 +127,7 @@ The scripts backing the actions live in `src/ci_cd` and are packaged as a uv pro
 
 - **`git-clone-ref`**: clones multiple repositories (used by the `git-clone` action)
 - **`get-kube`**: downloads a kubeconfig from Proton Pass
+- **`put-kube`**: uploads a kubeconfig to a Proton Pass item, replacing the existing attachment with the same filename
 
 ### get-kube
 
@@ -150,6 +151,28 @@ export KUBECONFIG=$PWD/local.production_eu.kubeconfig.yaml
 ~~~
 
 The file is saved readable only by its owner (`0600`), since it contains cluster credentials. Running `uv run get-kube` with no arguments prints the help.
+
+### put-kube
+
+Uploads a local kubeconfig file to an existing Proton Pass item. The project is the vault name, and the environment is the item within that vault. The script replaces the remote attachment whose filename matches the uploaded file's basename.
+
+**Requirements:**
+- `proton` CLI installed and on `PATH`
+- Logged in with `proton account login`
+
+**Options:**
+- **`--project <TEXT>`**: Name of the project/vault containing the kubeconfig. Defaults to `Personal`
+- **`--environment <TEXT>`**: Name of the Kubernetes environment item to update. Defaults to `kubeconfig`
+- **`--attach <TEXT>`**: Path to the local file to upload. Defaults to `kubeconfig.yaml`
+
+These are the current long option names; the command does not define short aliases or environment-variable alternatives.
+
+**Example:**
+~~~bash
+uv run put-kube --project my-project --environment production --attach ./kubeconfig.yaml
+~~~
+
+The existing attachment in the item must have the same filename as the local file, because the script uses that filename when replacing it. Run `uv run put-kube --help` to display the command help.
 
 ## License
 
