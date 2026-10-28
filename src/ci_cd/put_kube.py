@@ -11,9 +11,12 @@ import subprocess
 import typer
 import os
 import pathlib
+import logging
 from typing import Annotated
 
 app = typer.Typer()
+logger = logging.getLogger(__name__)
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 def run_proton_cli(*args: str) -> dict:
     """Run Proton CLI with JSON output and return the decoded response."""
@@ -24,10 +27,6 @@ def run_proton_cli(*args: str) -> dict:
         text=True
     )
     return json.loads(result.stdout)
-
-def print_status(step: str, status: bool) -> None:
-    """Print the outcome of a named workflow step."""
-    print("The step:", step, ",was executed with result:", status)
 
 def check_connection() -> bool:
     """Check that the Proton CLI account is accessible.
@@ -84,7 +83,6 @@ def update_item_attach(item: str, attachment: str) -> dict:
         The decoded JSON response from Proton.
     """
     filename = os.path.basename(attachment)
-    print("Update", attachment, "using remote filename:", filename)
     return run_proton_cli(
         "pass", "items", "update", item,
         "--attach", attachment,
@@ -114,28 +112,22 @@ def main(
     """
     try:
         isconnected = check_connection()
-        print_status("Connected to Proton pass:", isconnected)
+        logger.info("You are logged in to Proton Pass.")
         vault_id = get_vault_id(project)
-        print("Project:", project, "- Vault ID:", vault_id)
+        logger.info("The Vault defined is corect")
         item_id = get_item_id(project, vault_id, environment)
-        print("Item", environment, "Item ID:", item_id )
+        logger.info("The item you want to update exists in the correspondent project.")
         update = update_item_attach(item_id, path)
-        print_status("Update Attachment", update["action"])
-    # Kept for debugging purpose only
-    # except Exception as e:
-    #     import traceback
-    #     print(f"EXCEPTION CAUGHT: {type(e).__name__}: {e!r}")
-    #     traceback.print_exc()
-    #     raise typer.Exit(255)
+        logger.info("The attachment has been updated successfully")
     except FileNotFoundError as e:
-        print(str(e))
-        raise typer.Exit(1) 
+        logger.error(str(e))
+        raise typer.Exit(3)
     except subprocess.CalledProcessError as e:
-        # print("Subprocess:", str(e))
+        logger.error("The proton-cli command exited with error.")
         raise typer.Exit(1)
     except LookupError as e:
-        print("LookUp:", str(e))
-        raise typer.Exit(3)
+        logger.error(str(e))
+        raise typer.Exit(5)
 
 
 if __name__ == "__main__":
