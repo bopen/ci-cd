@@ -160,19 +160,17 @@ Uploads a local kubeconfig file to an existing Proton Pass item. The project is 
 - `proton` CLI installed and on `PATH`
 - Logged in with `proton account login`
 
-**Options:**
-- **`--project <TEXT>`**: Name of the project/vault containing the kubeconfig. Defaults to `Personal`
-- **`--environment <TEXT>`**: Name of the Kubernetes environment item to update. Defaults to `kubeconfig`
-- **`--attach <TEXT>`**: Path to the local file to upload. Defaults to `kubeconfig.yaml`
-
-These are the current long option names; the command does not define short aliases or environment-variable alternatives.
+**Required options:**
+- **`--project <TEXT>`**: Name of the project/vault containing the kubeconfig
+- **`--environment <TEXT>`**: Name of the Kubernetes environment item to update
+- **`--path <PATH>`**: Path to the local kubeconfig file to upload
 
 **Example:**
 ~~~bash
-uv run put-kube --project my-project --environment production --attach ./kubeconfig.yaml
+uv run put-kube --project my-project --environment production --path ./kubeconfig.yaml
 ~~~
 
-The existing attachment in the item must have the same filename as the local file, because the script uses that filename when replacing it. Run `uv run put-kube --help` to display the command help.
+The existing attachment in the item must have the same filename as the local file, because the script uses the local file's basename to replace it. Running `uv run put-kube` without arguments displays the help. The command exits with a nonzero status if the file is missing, a Proton CLI command fails, or the project or environment cannot be found.
 
 ## License
 
