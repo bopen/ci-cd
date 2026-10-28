@@ -10,6 +10,7 @@ import json
 import subprocess
 import typer
 import os
+import pathlib
 from typing import Annotated
 
 app = typer.Typer()
@@ -37,12 +38,7 @@ def check_connection() -> bool:
     Raises:
         subprocess.CalledProcessError: If the Proton command fails.
     """
-    try:
-        connected = run_proton_cli("account", "get")
-        return True
-    except Exception:
-        print("Check connection Error - Please Login using 'proton account login' command!")
-        raise
+    connected = run_proton_cli("account", "get")
 
 def get_vault_id(vault: str) -> str:
     """Return the share ID for the named Proton Pass vault.
@@ -95,20 +91,20 @@ def update_item_attach(item: str, attachment: str) -> dict:
         "--detach", filename
     )
 
-@app.command(help="Update a kubeconfig attachment on an existing Proton Pass item with a local file.")
+@app.command(help="Update a kubeconfig attachment on an existing Proton Pass item with a local file.", no_args_is_help=True)
 def main(
     project: Annotated[
         str,
         typer.Option(help="Name of the project containing the kubeconfig.")
-    ] = "Personal",
+    ],
     environment: Annotated[
         str,
         typer.Option(help="Name of the kubernetes environment to update/upload.")
-    ] = "kubeconfig",
-    attach: Annotated[
-        str,
-        typer.Option(help="Path to the local file to upload")
-    ] = "kubeconfig.yaml",
+    ],
+    path: Annotated[
+        pathlib.Path,
+        typer.Option(help="Path to the local Kubeconfig file to upload")
+    ],
 ) -> None:
     """Replace an item's kubeconfig attachment in Proton Pass.
 
@@ -123,7 +119,7 @@ def main(
         print("Project:", project, "- Vault ID:", vault_id)
         item_id = get_item_id(project, vault_id, environment)
         print("Item", environment, "Item ID:", item_id )
-        update = update_item_attach(item_id, attach)
+        update = update_item_attach(item_id, path)
         print_status("Update Attachment", update["action"])
     # Kept for debugging purpose only
     # except Exception as e:
@@ -131,12 +127,15 @@ def main(
     #     print(f"EXCEPTION CAUGHT: {type(e).__name__}: {e!r}")
     #     traceback.print_exc()
     #     raise typer.Exit(255)
+    except FileNotFoundError as e:
+        print(str(e))
+        raise typer.Exit(1) 
     except subprocess.CalledProcessError as e:
-        print("Subprocess:", str(e))
+        # print("Subprocess:", str(e))
         raise typer.Exit(1)
     except LookupError as e:
         print("LookUp:", str(e))
-        raise typer.Exit(1)
+        raise typer.Exit(3)
 
 
 if __name__ == "__main__":
