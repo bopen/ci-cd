@@ -127,6 +127,7 @@ The scripts backing the actions live in `src/ci_cd` and are packaged as a uv pro
 
 - **`git-clone-ref`**: clones multiple repositories (used by the `git-clone` action)
 - **`get-kube`**: downloads a kubeconfig from Proton Pass
+- **`get-kube-rancher`**: downloads a kubeconfig from a Rancher-managed cluster
 - **`put-kube`**: uploads a kubeconfig to a Proton Pass item, replacing the existing attachment with the same filename
 
 ### get-kube
@@ -151,6 +152,29 @@ export KUBECONFIG=$PWD/local.production_eu.kubeconfig.yaml
 ~~~
 
 The file is saved readable only by its owner (`0600`), since it contains cluster credentials. Running `uv run get-kube` with no arguments prints the help.
+
+### get-kube-rancher
+
+Downloads the kubeconfig of a cluster managed by Rancher, using the Rancher v3 API. Each environment (`dev`, `e2e`, `prod`) has defaults hardcoded in the `ENVIRONMENTS` mapping in `src/ci_cd/get_kube_rancher.py`: the Rancher URL, the cluster ID or name, and the environment variable that holds the token.
+
+**Setup:**
+- Fill in `rancher_url` and `cluster` for each environment in `ENVIRONMENTS`.
+- Export the token for the environment (`RANCHER_TOKEN_DEV`, `RANCHER_TOKEN_E2E`, `RANCHER_TOKEN_PROD`), or use `RANCHER_TOKEN` as a fallback. Create it in Rancher under **Account & API Keys** and use the **Bearer Token** (`token-xxxxx:secret`).
+
+**Options:**
+- **`-e, --environment`** (required, env `CICD_ENVIRONMENT`): `dev`, `e2e` or `prod`
+- **`-c, --cluster`** (optional, env `CICD_RANCHER_CLUSTER`): Cluster ID or name, overriding the environment default
+- **`-u, --rancher-url`** (optional, env `CICD_RANCHER_URL`): Rancher URL, overriding the environment default
+- **`-o, --output-path`** (optional, env `CICD_OUTPUT_PATH`): Where to save the kubeconfig. Defaults to `local.<environment>.kubeconfig.yaml`.
+
+**Example:**
+~~~bash
+export RANCHER_TOKEN_DEV='token-xxxxx:yyyyyyyy'
+uv run get-kube-rancher -e dev
+export KUBECONFIG=$PWD/local.dev.kubeconfig.yaml
+~~~
+
+The file is saved readable only by its owner (`0600`). On Rancher 2.8 and later the token embedded in a generated kubeconfig expires after about 30 days, so regenerate it at the start of each pipeline run rather than storing it as a long-lived secret.
 
 ### put-kube
 
