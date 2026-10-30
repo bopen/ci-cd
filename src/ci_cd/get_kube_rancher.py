@@ -271,7 +271,9 @@ def main(
                 "set it in ENVIRONMENTS or pass --cluster"
             )
         if output_path is None:
-            output_path = pathlib.Path(f"local.{environment.value}.kubeconfig.yaml")
+            output_path = pathlib.Path(
+                f"local.{target_cluster.replace(' ', '_')}.kubeconfig.yaml"
+            )
 
         token = get_token(config)
         logger.info(

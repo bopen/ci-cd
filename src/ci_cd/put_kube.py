@@ -16,7 +16,6 @@ from typing import Annotated
 
 app = typer.Typer()
 logger = logging.getLogger(__name__)
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 def run_proton_cli(*args: str) -> dict:
     """Run Proton CLI with JSON output and return the decoded response."""
@@ -110,6 +109,7 @@ def main(
     then uploads the local file and detaches the existing file with the same
     basename.
     """
+    logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
     try:
         isconnected = check_connection()
         logger.info("You are logged in to Proton Pass.")
