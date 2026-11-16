@@ -88,7 +88,7 @@ def git_clone_repos(
             )
 
 
-@app.command()
+@app.command(no_args_is_help=True)
 def main(
     repo_list: Annotated[
         list[str],
