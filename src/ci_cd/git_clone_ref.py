@@ -73,7 +73,6 @@ def git_clone_repos(
         repo_url = repo_base_url_template.format(
             credentials=credentials, repo_org=repo_org, repo_name=repo_name
         )
-        print(repo_url)
 
         repo_ref_env = f"{repo_name}_REF".upper().replace("-", "_")
         repo_ref = os.environ.get(repo_ref_env, default_repo_ref)
