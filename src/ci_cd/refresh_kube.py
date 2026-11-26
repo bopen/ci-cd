@@ -20,6 +20,8 @@ import typer
 
 from ci_cd.get_kube_rancher import (
     ENVIRONMENTS as RANCHER_ENVIRONMENTS,
+)
+from ci_cd.get_kube_rancher import (
     Environment,
     RancherError,
     generate_kubeconfig,
