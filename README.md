@@ -128,7 +128,7 @@ The scripts backing the actions live in `src/ci_cd` and are packaged as a uv pro
 - **`git-clone-ref`**: clones multiple repositories (used by the `git-clone` action)
 - **`get-kube`**: downloads a kubeconfig from Proton Pass
 - **`get-kube-rancher`**: downloads a kubeconfig from a Rancher-managed cluster
-- **`put-kube`**: uploads a kubeconfig to a Proton Pass item, replacing the existing attachment with the same filename
+- **`put-kube`**: uploads a kubeconfig to a Proton Pass item, replacing its existing attachment
 - **`refresh-kube`**: generates a kubeconfig from Rancher and replaces the Proton Pass attachment in one command
 
 ### get-kube
@@ -179,7 +179,7 @@ The file is saved readable only by its owner (`0600`). On Rancher 2.8 and later 
 
 ### put-kube
 
-Uploads a local kubeconfig file to an existing Proton Pass item. The project is the vault name, and the environment is the item within that vault. The script replaces the remote attachment whose filename matches the uploaded file's basename.
+Uploads a local kubeconfig file to an existing Proton Pass item. The project is the vault name, and the environment is the item within that vault. The script replaces every attachment already on the item with the uploaded file.
 
 **Requirements:**
 - `proton` CLI installed and on `PATH`
@@ -195,7 +195,7 @@ Uploads a local kubeconfig file to an existing Proton Pass item. The project is 
 uv run put-kube --project my-project --environment production --path ./kubeconfig.yaml
 ~~~
 
-The existing attachment in the item must have the same filename as the local file, because the script uses the local file's basename to replace it. Running `uv run put-kube` without arguments displays the help. The command exits with a nonzero status if the file is missing, a Proton CLI command fails, or the project or environment cannot be found.
+The item must already exist and is expected to hold a single kubeconfig attachment; any attachment it holds is detached after the local file is uploaded, so the local filename does not need to match the remote one. Running `uv run put-kube` without arguments displays the help. The command exits with a nonzero status if the file is missing, a Proton CLI command fails, or the project or environment cannot be found.
 
 ### refresh-kube
 
